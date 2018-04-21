@@ -56,14 +56,14 @@ public class MainActivity extends Activity {
 //        @Override
 //        public void run() {
 //
-////            Message message=new Message();
-////            message.what=1;
-////            handler.sendEmptyMessageDelayed(1,1000);
+//            Message message=new Message();
+//            message.what=1;
+//            handler.sendEmptyMessageDelayed(1,1000);
 //            //   handler.postDelayed(runnable, 10000);
 //        }
 //    };
 
-    Handler  handler = new Handler() {
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -259,13 +259,16 @@ public class MainActivity extends Activity {
         try {
             HashMap<String, String> params = new HashMap<>();
             params.put("Accept-Encoding", "gzip,deflate,sdch");
-            params.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            params.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;" +
+                    "q=0.8");
             mediaMetadataRetriever.setDataSource(mVideoUrl, params);
             //获取图片
             //这里是取整个视频的缩略图
-            //      listBitmap = ThumbnailUtils.createVideoThumbnail(mVideoUrl, MediaStore.Video.Thumbnails.MICRO_KIND);
+            //      listBitmap = ThumbnailUtils.createVideoThumbnail(mVideoUrl, MediaStore.Video.Thumbnails
+            // .MICRO_KIND);
 
-            listBitmap = mediaMetadataRetriever.getFrameAtTime(mPlayer.getCurrentPosition() * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);//为什么只有一帧
+            listBitmap = mediaMetadataRetriever.getFrameAtTime(mPlayer.getCurrentPosition() * 1000,
+                    MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);//为什么只有一帧
             //将图片保存到相册里
 
             fruitList.add(new Fruit(fruitList.size() + 1, listBitmap, 0.7, 0.23));

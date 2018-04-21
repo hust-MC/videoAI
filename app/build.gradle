@@ -1,21 +1,61 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'org.apache.httpcomponents:httpclient:4.5.2'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+def cpuType = 'armeabi-v7a'
+
 apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    buildToolsVersion "25.0.2"
+
     defaultConfig {
-        applicationId "com.mc.shiyinqiao.myapplication"
-        minSdkVersion 16
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        applicationId = 'com.mc.shiyinqiao.myapplication'
+        minSdkVersion 21
+        targetSdkVersion 23
+        ndk {
+            abiFilters "${cpuType}"
         }
+        jackOptions {
+            enabled true
+        }
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_TOOLCHAIN=gcc', '-DANDROID_STL=gnustl_static'
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path './jni/CMakeLists.txt'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    sourceSets {
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
@@ -27,5 +67,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
+    compile 'org.tensorflow:tensorflow-android:+'
     testCompile 'junit:junit:4.12'
 }
