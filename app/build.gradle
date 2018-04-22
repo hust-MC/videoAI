@@ -1,3 +1,6 @@
+project.buildDir = 'gradleBuild'
+getProject().setBuildDir('gradleBuild')
+
 buildscript {
     repositories {
         jcenter()

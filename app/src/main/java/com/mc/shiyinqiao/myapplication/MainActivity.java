@@ -24,11 +24,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.mc.shiyinqiao.myapplication.tensorflow.Classifier;
+import com.mc.shiyinqiao.myapplication.tensorflow.TensorFlowObjectDetectionAPIModel;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,9 +53,13 @@ public class MainActivity extends Activity {
     private static final String VIDEO_FILE_SCHEMA = "file";
     private static final String VIDEO_CONTENT_SCHEMA = "content";
     private static final String SD_PATH = Environment.getExternalStorageDirectory().getPath();
-    public static Bitmap listBitmap;
+    public Bitmap listBitmap;
     private FruitAdapter adapter;
     ListView mListView;
+    private Classifier detector;
+    /** 保留3位小数 */
+    private final DecimalFormat df = new DecimalFormat("#.000");
+
 //    Runnable runnable = new Runnable() {
 //        @Override
 //        public void run() {
@@ -83,6 +91,14 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mListView = (ListView) findViewById(R.id.list_item);
         Button buttondown = (Button) findViewById(R.id.downModel);
+
+        // 初始化检测器
+        try {
+            detector = TensorFlowObjectDetectionAPIModel.create(
+                    getAssets(), Classifier.MODEL_FILE, Classifier.LABELS_FILE, Classifier.INPUT_SIZE);
+        } catch (IOException e) {
+            Log.e("MC_LOG", "文件不存在！！");
+        }
 
         initFruits();//初始化
 
@@ -255,7 +271,6 @@ public class MainActivity extends Activity {
 
     private void getFrame() {
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        listBitmap = null;
         try {
             HashMap<String, String> params = new HashMap<>();
             params.put("Accept-Encoding", "gzip,deflate,sdch");
@@ -269,18 +284,28 @@ public class MainActivity extends Activity {
 
             listBitmap = mediaMetadataRetriever.getFrameAtTime(mPlayer.getCurrentPosition() * 1000,
                     MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);//为什么只有一帧
+            Classifier.Recognition result = null;
+            try {
+                Bitmap bitmap = Bitmap.createScaledBitmap(
+                        listBitmap, Classifier.INPUT_SIZE, Classifier.INPUT_SIZE, false);
+                result = detector.recognizeImage(bitmap).get(0);
+            } catch (Exception e) {
+                Log.e("MC_LOG", "detect fail");
+            }
             //将图片保存到相册里
+            fruitList.add(new Fruit(
+                    fruitList.size() + 1, listBitmap, result.getTitle(), df.format(result.getConfidence())));
 
-            fruitList.add(new Fruit(fruitList.size() + 1, listBitmap, 0.7, 0.23));
+
             runOnUiThread((new Runnable() {
                 @Override
                 public void run() {
                     adapter.notifyDataSetChanged();
                     // 平滑滑动到列表底部
                     mListView.smoothScrollToPosition(fruitList.size() - 1);
+
                 }
             }));
-
 
         } catch (Exception e) {
             e.printStackTrace();

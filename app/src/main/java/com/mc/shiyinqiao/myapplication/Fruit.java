@@ -9,12 +9,12 @@ import android.graphics.Bitmap;
 public class Fruit {
     private int index;
     private Bitmap imageBitmap;
-    private double location;
-    private  double confident;
-    public  Fruit(int index, Bitmap imageBitmap, double location, double confident){
+    private String label;
+    private  String confident;
+    public  Fruit(int index, Bitmap imageBitmap, String label, String confident){
         this.index = index;
         this.imageBitmap=imageBitmap;
-        this.location=location;
+        this.label =label;
         this.confident=confident;
     }
 
@@ -25,10 +25,10 @@ public class Fruit {
     public  Bitmap getImageBitmap(){
         return imageBitmap;
     }
-    public  double getLocation(){
-        return location;
+    public  String getLabel(){
+        return label;
     }
-    public  double getConfident(){
+    public  String getConfident(){
         return confident;
     }
 

@@ -58,7 +58,7 @@ public class FruitAdapter extends ArrayAdapter {
       //  viewHolder.fruitImage.setImageBitmap(MainActivity.listBitmap);
         viewHolder.fruitImage.setImageBitmap(fruit.getImageBitmap());
         viewHolder.fruitname.setText(fruit.getIndex() + "");
-        viewHolder.location.setText((fruit.getLocation()) + "");
+        viewHolder.location.setText((fruit.getLabel()) + "");
         viewHolder.confidence.setText(fruit.getConfident() + "");
         return view;
     }
