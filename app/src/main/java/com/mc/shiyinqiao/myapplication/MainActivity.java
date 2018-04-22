@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.drm.DrmStore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.SurfaceTexture;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -15,21 +17,25 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.mc.shiyinqiao.myapplication.tensorflow.Classifier;
 import com.mc.shiyinqiao.myapplication.tensorflow.TensorFlowObjectDetectionAPIModel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -38,9 +44,13 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    /** 取帧间隔 */
+    /**
+     * 取帧间隔
+     */
     private static final long GET_FRAME_INTERVAL = 3000;
-    /** 获取帧的命令 */
+    /**
+     * 获取帧的命令
+     */
     private static final int WHAT_GET_FRAME = 1;
     private int mScreenWidth;
     private int mScreenHeight;
@@ -57,6 +67,7 @@ public class MainActivity extends Activity {
     private FruitAdapter adapter;
     ListView mListView;
     private Classifier detector;
+    private MyView mBoundBox;
     /** 保留3位小数 */
     private final DecimalFormat df = new DecimalFormat("#.000");
 
@@ -91,6 +102,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mListView = (ListView) findViewById(R.id.list_item);
         Button buttondown = (Button) findViewById(R.id.downModel);
+        ImageView adImageView = (ImageView) findViewById(R.id.ad_imageview);
+        TextView adName = findViewById(R.id.ad_name);
+        TextView adUrl = findViewById(R.id.ad_url);
+        LinearLayout adViewLayout = findViewById(R.id.adViewLayout);
+        mBoundBox = findViewById((R.id.bounding_box));
+
+        //     LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.adview_layout, null);
 
         // 初始化检测器
         try {
@@ -124,6 +142,29 @@ public class MainActivity extends Activity {
         //        startService(intent);
 
         //定时取视频帧
+        switch (2) {
+            //左下——右下，右上——左上？ 2->1 4->3
+            case 1:
+                FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                lp1.gravity = Gravity.LEFT|Gravity.TOP;
+                adViewLayout.setLayoutParams(lp1);
+                break;
+            case 2:
+                FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                lp2.gravity = Gravity.RIGHT|Gravity.TOP;
+                adViewLayout.setLayoutParams(lp2);
+                break;
+            case 3:
+                FrameLayout.LayoutParams lp3 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                lp3.gravity = Gravity.LEFT| Gravity.BOTTOM;
+                adViewLayout.setLayoutParams(lp3);
+
+            case 4:
+                FrameLayout.LayoutParams lp4 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                lp4.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+
+                adViewLayout.setLayoutParams(lp4);
+        }
 
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,6 +223,7 @@ public class MainActivity extends Activity {
         });
     }
 
+
     class PlayerListener implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
         @Override
         public void onPrepared(MediaPlayer mp) {
@@ -191,7 +233,7 @@ public class MainActivity extends Activity {
             if (height >= width) {
                 height = 7 * height / 10;
             }
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
             mVideoView.setLayoutParams(params);
 
             mPlayer.start();
@@ -297,13 +339,15 @@ public class MainActivity extends Activity {
                     fruitList.size() + 1, listBitmap, result.getTitle(), df.format(result.getConfidence())));
 
 
+            final Classifier.Recognition finalResult = result;
             runOnUiThread((new Runnable() {
                 @Override
                 public void run() {
                     adapter.notifyDataSetChanged();
                     // 平滑滑动到列表底部
                     mListView.smoothScrollToPosition(fruitList.size() - 1);
-
+                    mBoundBox.setPosition(finalResult.getLocation());
+                    mBoundBox.draw(new Canvas());
                 }
             }));
 

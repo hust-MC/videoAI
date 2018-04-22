@@ -37,10 +37,10 @@ public class SocketActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socket);
         LinearLayout layout = (LinearLayout) findViewById(R.id.layout_socket);
-        myView = new MyView(this);//this 要在构造器完成才有
-        layout.addView(myView);
-        myView.setPosition(10, 20, 233, 263);
-        myView.draw(canvas);
+//        myView = new MyView(this);//this 要在构造器完成才有
+//        layout.addView(myView);
+//        myView.setPosition(10,20,10,280,250,20,250,280);
+//        myView.draw(canvas);
 
         Button button = (Button) findViewById(R.id.download);
         textView = (TextView) findViewById(R.id.print);
