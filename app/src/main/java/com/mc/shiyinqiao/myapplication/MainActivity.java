@@ -95,11 +95,13 @@ public class MainActivity extends Activity {
 
     };
     private boolean mIsPaused;
+    private FrameLayout mVideoHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mVideoHolder = findViewById(R.id.video_holder);
         mListView = (ListView) findViewById(R.id.list_item);
         Button buttondown = (Button) findViewById(R.id.downModel);
         ImageView adImageView = (ImageView) findViewById(R.id.ad_imageview);
@@ -235,6 +237,9 @@ public class MainActivity extends Activity {
             }
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
             mVideoView.setLayoutParams(params);
+
+            LinearLayout.LayoutParams holderParam = new LinearLayout.LayoutParams(width, height);
+            mVideoHolder.setLayoutParams(holderParam);
 
             mPlayer.start();
             mVideoView.setClickable(true);

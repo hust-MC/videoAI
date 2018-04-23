@@ -36,17 +36,17 @@ android {
         jackOptions {
             enabled true
         }
-        externalNativeBuild {
-            cmake {
-                arguments '-DANDROID_TOOLCHAIN=gcc', '-DANDROID_STL=gnustl_static'
-            }
-        }
+//        externalNativeBuild {
+//            cmake {
+//                arguments '-DANDROID_TOOLCHAIN=gcc', '-DANDROID_STL=gnustl_static'
+//            }
+//        }
     }
-    externalNativeBuild {
-        cmake {
-            path './jni/CMakeLists.txt'
-        }
-    }
+//    externalNativeBuild {
+//        cmake {
+//            path './jni/CMakeLists.txt'
+//        }
+//    }
 
     lintOptions {
         abortOnError false
