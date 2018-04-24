@@ -24,9 +24,7 @@ import java.util.List;
  * Generic interface for interacting with different recognition engines.
  */
 public interface Classifier {
-   String MODEL_FILE = "file:///android_asset/ssd_mobilenet_v1_android_export.pb";
-   String LABELS_FILE = "file:///android_asset/coco_labels_list.txt";
-   int INPUT_SIZE = 300;
+
 
 
   /**

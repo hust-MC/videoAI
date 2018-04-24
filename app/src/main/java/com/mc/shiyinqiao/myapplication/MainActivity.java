@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.drm.DrmStore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,7 +16,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Surface;
@@ -32,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mc.shiyinqiao.myapplication.tensorflow.Classifier;
+import com.mc.shiyinqiao.myapplication.tensorflow.TFBridge;
 import com.mc.shiyinqiao.myapplication.tensorflow.TensorFlowObjectDetectionAPIModel;
 
 import java.io.File;
@@ -52,6 +51,8 @@ public class MainActivity extends Activity {
      * 获取帧的命令
      */
     private static final int WHAT_GET_FRAME = 1;
+    // 切换分类(TFBridge.CLASS)、检测(TFBridge.DETECT)
+    private static final int TYPE = TFBridge.CLASS;
     private int mScreenWidth;
     private int mScreenHeight;
     private float ratioX, ratioY;
@@ -114,8 +115,7 @@ public class MainActivity extends Activity {
 
         // 初始化检测器
         try {
-            detector = TensorFlowObjectDetectionAPIModel.create(
-                    getAssets(), Classifier.MODEL_FILE, Classifier.LABELS_FILE, Classifier.INPUT_SIZE);
+            detector = TFBridge.getClassifier(getAssets(), TYPE);
         } catch (IOException e) {
             Log.e("MC_LOG", "文件不存在！！");
         }
@@ -334,7 +334,7 @@ public class MainActivity extends Activity {
             Classifier.Recognition result = null;
             try {
                 Bitmap bitmap = Bitmap.createScaledBitmap(
-                        listBitmap, Classifier.INPUT_SIZE, Classifier.INPUT_SIZE, false);
+                        listBitmap, TFBridge.INPUT_SIZE, TFBridge.INPUT_SIZE, false);
                 result = detector.recognizeImage(bitmap).get(0);
             } catch (Exception e) {
                 Log.e("MC_LOG", "detect fail");
