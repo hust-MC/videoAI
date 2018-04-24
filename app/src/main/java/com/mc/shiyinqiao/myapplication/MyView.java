@@ -42,7 +42,6 @@ public class MyView extends View {
         if (location == null) {
             super.onDraw(canvas);
         } else {
-            canvas.drawColor(Color.WHITE);
             paint.setAntiAlias(true);
             paint.setColor(Color.BLACK);
             paint.setStyle(Paint.Style.STROKE);

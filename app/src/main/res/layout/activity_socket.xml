@@ -13,7 +13,12 @@
         android:id="@+id/download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="下载" />
+        android:text="下载千类大模型" />
+    <Button
+        android:id="@+id/download1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下载百类小模型" />
 
     <TextView
         android:id="@+id/print"

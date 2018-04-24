@@ -25,7 +25,7 @@
             android:layout_height="60dp"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="2px"
-            android:alpha="0.7"
+            android:alpha="0.9"
             android:background="@drawable/shape_grey"
             android:backgroundTint="@color/colorBlack"
             android:elevation="0.5dp">
@@ -34,33 +34,20 @@
                 android:id="@+id/ad_imageview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:alpha="0.9"
+                android:scaleType="centerInside"
                 android:src="@mipmap/ic_launcher" />
 
-            <LinearLayout
+
+            <TextView
+                android:id="@+id/ad_name"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:alpha="0.7"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/ad_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:text="label"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/ad_url"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:text="http://baidu.com"
-                    android:textColor="@color/colorWhite" />
-
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:autoLink="web"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="label"
+                android:textColor="@color/colorWhite" />
 
 
         </LinearLayout>
@@ -87,23 +74,18 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:gravity="center"
             android:text="图" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_weight="1"
-            android:gravity="center"
             android:text="Index" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_weight="1"
-            android:gravity="center"
             android:text="Label" />
 
         <TextView
@@ -111,7 +93,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:gravity="center"
             android:text="Confidence" />
 
     </LinearLayout>

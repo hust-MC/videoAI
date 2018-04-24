@@ -22,6 +22,9 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -29,9 +32,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.mc.shiyinqiao.myapplication.tensorflow.AdContent;
 import com.mc.shiyinqiao.myapplication.tensorflow.Classifier;
 import com.mc.shiyinqiao.myapplication.tensorflow.TFBridge;
 import com.mc.shiyinqiao.myapplication.tensorflow.TensorFlowObjectDetectionAPIModel;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,7 +79,11 @@ public class MainActivity extends Activity {
     ListView mListView;
     private Classifier detector;
     private MyView mBoundBox;
-    /** 保留3位小数 */
+    private TextView adUrl;
+    private LinearLayout madViewLayout;
+    /**
+     * 保留3位小数
+     */
     private final DecimalFormat df = new DecimalFormat("#.000");
 
 //    Runnable runnable = new Runnable() {
@@ -97,6 +111,9 @@ public class MainActivity extends Activity {
     };
     private boolean mIsPaused;
     private FrameLayout mVideoHolder;
+    private ImageView mAdPic;
+    private TextView mAdName;
+    private Button buttondown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,11 +121,12 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mVideoHolder = findViewById(R.id.video_holder);
         mListView = (ListView) findViewById(R.id.list_item);
-        Button buttondown = (Button) findViewById(R.id.downModel);
+        buttondown = (Button) findViewById(R.id.downModel);
         ImageView adImageView = (ImageView) findViewById(R.id.ad_imageview);
-        TextView adName = findViewById(R.id.ad_name);
-        TextView adUrl = findViewById(R.id.ad_url);
-        LinearLayout adViewLayout = findViewById(R.id.adViewLayout);
+        mAdName = findViewById(R.id.ad_name);
+        adUrl = findViewById(R.id.ad_url);
+        madViewLayout = findViewById(R.id.adViewLayout);
+        mAdPic = findViewById(R.id.ad_imageview);
         mBoundBox = findViewById((R.id.bounding_box));
 
         //     LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.adview_layout, null);
@@ -121,6 +139,27 @@ public class MainActivity extends Activity {
         }
 
         initFruits();//初始化
+        //生成json \"key\":\"value\",
+        String jsontest = "{\n"+ "\t\"j_name\":\"ss\",\"j_confidence\":\"0.987\", \n"+"\t\"j_time\":\"2018090987\", \n"+ "\t\"j_imgurl\":\"http://blog.csdn.net/qq_29269233/L05_Server/images/f1.jpg\",\n" + "\t\"j_adurl\":\"http://blog.csdn.net/qq_29269233/L05_Server/images/f1.jpg\"\n" + "}\n";
+//                "{" +
+//                "\"id\":2, \"name\":\"金鱼\", " +
+//                "\"confidence\":.943, \n" + "\"time\"20180804, \n" +
+//                "\"imageurl\":\"http://blog.csdn.net/qq_29269233/L05_Server/images/f1.jpg\"\n" +"\"adurl\":\"http://blog.csdn.net/qq_29269233/L05_Server/images/f1.jpg\"\n" +
+//                "}\n";
+        Log.d("sy_log", JsonDecode.decode(jsontest));
+//        JSONObject jsonObjectAdd = new JSONObject();
+//        try {
+//            jsonObjectAdd.put("name", "qq");
+//            jsonObjectAdd.put("confidence", "0.94");
+//            jsonObjectAdd.put("time", "2015111");
+//            jsonObjectAdd.put("img", "http");
+//            jsonObjectAdd.put("adurl", "heep");
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+
+//        buttondown.setText(jsontest.toString());
 
         adapter = new FruitAdapter(MainActivity.this, R.layout.fruit_item, fruitList);
 
@@ -143,29 +182,27 @@ public class MainActivity extends Activity {
         //        Intent intent = new Intent(this, AutoUpdatedService.class);
         //        startService(intent);
 
-        //定时取视频帧
-        switch (2) {
-            //左下——右下，右上——左上？ 2->1 4->3
+        switch (4) {
+            //这里是广告view的位置
             case 1:
                 FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                lp1.gravity = Gravity.LEFT|Gravity.TOP;
-                adViewLayout.setLayoutParams(lp1);
+                lp1.gravity = Gravity.LEFT | Gravity.TOP;
+                madViewLayout.setLayoutParams(lp1);
                 break;
             case 2:
                 FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                lp2.gravity = Gravity.RIGHT|Gravity.TOP;
-                adViewLayout.setLayoutParams(lp2);
+                lp2.gravity = Gravity.RIGHT | Gravity.TOP;
+                madViewLayout.setLayoutParams(lp2);
                 break;
             case 3:
                 FrameLayout.LayoutParams lp3 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                lp3.gravity = Gravity.LEFT| Gravity.BOTTOM;
-                adViewLayout.setLayoutParams(lp3);
+                lp3.gravity = Gravity.LEFT | Gravity.BOTTOM;
+                madViewLayout.setLayoutParams(lp3);
 
             case 4:
                 FrameLayout.LayoutParams lp4 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 lp4.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-
-                adViewLayout.setLayoutParams(lp4);
+                madViewLayout.setLayoutParams(lp4);
         }
 
         mVideoView.setOnClickListener(new View.OnClickListener() {
@@ -178,6 +215,43 @@ public class MainActivity extends Activity {
                     mPlayer.pause();
                     mIsPaused = true;
                 }
+            }
+        });
+        //跳转广告链接
+        madViewLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                //以下是广告动画效果
+                Animation animation1 = AnimationUtils.loadAnimation(MainActivity.this, R.anim.ad_anim_xml);
+                animation1.setFillAfter(true);
+                animation1.setInterpolator(new DecelerateInterpolator());
+                animation1.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                madViewLayout.clearAnimation();
+                madViewLayout.startAnimation(animation1);
+
+//                Animation animation2=AnimationUtils.loadAnimation(MainActivity.this,)
+
+//                Uri uri = Uri.parse(adUrl.toString());
+//                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+//                startActivity(intent);
+
             }
         });
         // 一定要在setOnclickListener之后
@@ -342,17 +416,22 @@ public class MainActivity extends Activity {
             //将图片保存到相册里
             fruitList.add(new Fruit(
                     fruitList.size() + 1, listBitmap, result.getTitle(), df.format(result.getConfidence())));
-
+            madViewLayout.setTag(result.getTitle());//
 
             final Classifier.Recognition finalResult = result;
             runOnUiThread((new Runnable() {
                 @Override
                 public void run() {
+                    mAdName.setText(AdContent.getADUrl(finalResult.getTitle()));
+                    ShowImg(AdContent.getADPic(finalResult.getTitle()));
+
                     adapter.notifyDataSetChanged();
                     // 平滑滑动到列表底部
                     mListView.smoothScrollToPosition(fruitList.size() - 1);
                     mBoundBox.setPosition(finalResult.getLocation());
                     mBoundBox.draw(new Canvas());
+
+
                 }
             }));
 
@@ -392,6 +471,17 @@ public class MainActivity extends Activity {
         }
 
 
+    }
+
+    private void ShowImg(String adimgurl) {
+//        String adimgurl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1523985057710&di=e3766089f21783018c7c549bdfcba60c&imgtype=0&src=http%3A%2F%2Fwww.baicaolu.com%2Fuploads%2F201508%2F1440228827ta2bKqjX.jpg";
+        ImageSize adimgurlSize = new ImageSize(80, 80);
+        ImageLoader.getInstance().loadImage(adimgurl, adimgurlSize, new SimpleImageLoadingListener() {
+            public void onLoadingComplete(String adimgurl, View view, Bitmap loadImage) {
+                super.onLoadingComplete(adimgurl, view, loadImage);
+                mAdPic.setImageBitmap(loadImage);
+            }
+        });
     }
 
 //    private class getFrameMessage extends Handler {
